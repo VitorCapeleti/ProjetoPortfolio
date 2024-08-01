@@ -1,0 +1,359 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=VT323&display=swap');
+*{
+    box-sizing: border-box;
+}
+:root {
+    --primary-font-family: "Archivo Black", sans-serif;
+    --secondary-font-family: "VT323", monospace;
+}
+body{
+    background: url(../img/background.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    overflow-x: hidden;
+}
+header{
+    color: white;
+    padding-top: 10px;
+}
+.headdiv{
+    text-align: right;
+    padding: 20px 60px 0px 0px;
+}
+.box{
+    margin-top: 50px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    color: white;
+    padding-top: 80px;
+}
+.list{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 200px;
+}
+.list li{
+    list-style: none;
+    flex: 1;
+    text-align: left;
+}
+
+.list li button{
+    padding: 10px;
+    border: none;
+    background-color: #47077f71;
+    color: #925aff;
+    font-family: var(--secondary-font-family);
+}
+.list li h1{
+    font-family: var(--primary-font-family);
+    font-size: 3rem;
+    margin-top: 0px;
+    
+}
+.list li p{
+    font-family: var(--secondary-font-family);
+    font-size: 1.3rem;
+    margin-top: -5px;
+    margin-bottom: 70px;
+}
+.list li img{
+    margin-top: -50px;
+    margin-bottom: 500px;
+}
+@media screen  and (max-width: 1288px){
+    .list{
+        gap: 0px;
+    }
+}
+
+@media only screen and (min-width: 501px) and (max-width: 1088px){
+    .box{
+        margin-top: -60px;
+    }
+    .secondLi{
+        text-align: center;
+    }
+    .list li img{
+        margin-top: -80px;
+        margin-bottom: 520px;
+        text-align: center;
+    }
+}
+@media only screen and (min-width: 450px) and (max-width: 705px){
+    .box{
+        margin-top: -60px;
+    }
+    .list li{
+        text-align: left;
+    }
+    .list li h1{
+        font-size: 2rem;
+        width: 100%;
+    }
+    .list li p{
+        width: 100%;
+    }
+    .list li:second-child{
+        align-items: center;
+        text-align: center;
+    }
+    .secondLi{
+        align-items: center;
+        text-align: center;
+    }
+    .list li img{
+        margin-top: -80px;
+        margin-bottom: 520px;
+        width: 25.7rem;
+    }
+}
+@media screen and (max-width: 449px){
+    .box{
+        margin-top: -60px;
+    }
+    .list li h1{
+        font-size: 2rem;
+        width: 80%;
+    }
+    .list li p{
+        width: 80%;
+        font-size: 1.1rem;
+    }
+    .list li img{
+        margin-top: -80px;
+        margin-bottom: 520px;
+        width: 25rem;
+        margin-left: -80px;
+    }
+}
+.dropdown-item:hover{
+    background-color: aqua;
+}
+.headdiv img{
+    width: 80px;
+    margin-right: -20px;
+    padding: 0px;
+}
+/*Página de projetos*/
+.projects-header{
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+.projects-title{
+    font-family: var(--primary-font-family);
+    margin-top: 20px;
+    color: white;
+    padding: 0px 10px 0px 40px;
+}
+.box1{
+    margin-top: 100px;
+    color: white;
+    align-items: center;
+
+}
+.list1{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.list1 li{
+    padding: 0px 45px 20px 0px;
+    list-style: none;
+ 
+}
+.project{
+    align-items: center;
+    text-align: center;
+    background-color: #47077f71;
+    padding: 30px;
+    border-radius: 20px;
+}
+.project img{
+    width: 270px;
+    padding-top: 20px;
+    padding-bottom: 40px;
+}
+.project h1{
+    font-family: var(--primary-font-family);
+}
+.project p{
+    padding-top: 30px;
+    width: 300px;
+    font-size: 18px;
+    font-family: var(--secondary-font-family);
+    
+}
+.project a{
+    text-decoration: underline;
+    color: white;
+}
+.project a:hover{
+    color: rgb(209, 209, 209);
+}
+/*Página Sobre mim*/
+.box2{
+    margin-top: 250px;
+    color: white;
+    align-items: center;
+
+}
+.list2{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0px;
+}
+.list2 li{
+    list-style: none;
+    flex: 1;
+}
+.list2 li p{
+    font-family: var(--secondary-font-family);
+    font-size: 2rem;
+    margin-top: -170px;
+    margin-bottom: 70px;
+    width: 70%;
+}
+.listAbout{
+    align-items: center;
+    text-align: center;  
+}
+.listAboutUl{
+    align-items: center;
+}
+.imgMe img{
+    margin-top: -120px;
+}
+.iconImages{
+    padding: 10px;
+}
+.link{
+    text-decoration: none;
+    font-style: none;
+    padding: 10px;
+    color: rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 0);
+}
+.iconBg{
+    display: inline;
+    padding: 10px;
+    text-align: center;
+    align-items: center;
+    border: none;
+    border-radius: 50px;
+    background-color: #925aff;
+    transition: 1.1s;
+    margin-bottom: 300px;
+}
+.iconBg:hover{
+    scale: 1.2;
+}
+.iconBg img{
+    width: 32px;
+}
+@media only screen and (min-width: 1096px) and (max-width: 1300px){
+    .list2 li p{
+        width: 110%;
+    }
+}
+@media only screen and (min-width: 939px) and (max-width: 1096px){
+    .list2 li p{
+        width: 150%;
+    }
+}
+@media only screen and (min-width: 1px) and (max-width: 938px){
+    .listAbout{
+        padding-top: 80px;
+        margin-bottom: 300px;
+    }
+}
+@media only screen and (min-width: 660px) and (max-width: 938px){
+    .listAbout{
+        margin-right: 300px;
+    }
+    .list2 li p{
+        width: 100%;
+    }
+
+}
+@media only screen and (min-width: 488px) and (max-width: 659px){
+    .listAbout{
+        margin-left: -200px;
+    }
+    .list2 li p{
+        width: 100%;
+    }
+
+}
+@media only screen and (min-width: 426px) and (max-width: 487px){
+    .listAbout{
+        margin-left: -200px;
+    }
+    .list2 li p{
+        width: 100%;
+    }
+
+}
+@media only screen and (min-width: 365px) and (max-width: 425px){
+    .listAbout{
+        margin-left: -200px;
+    }
+    .list2 li p{
+        width: 100%;
+        font-size: 1.4rem;
+    }
+
+}
+@media only screen and (max-width: 364px){
+    .listAbout{
+        margin-left: -200px;
+    }
+    .listAboutUl{
+        margin-left: -25px;
+    }
+    .list2 li p{
+        width: 100%;
+    }
+
+}
+
+/*Projetos detalhados*/
+.boxProjects{
+    margin-top: 50px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+}
+.divProjects{
+    max-width: 70%;
+}
+.divProjects img {
+    width: 70%;
+    object-fit: cover;
+}
+.h1Projects{
+    text-align: left;
+    font-size: 30px;
+    align-items: end;
+    padding-bottom: 20px;
+    font-family: var(--primary-font-family);
+    color: white;
+}
+.pProjects{
+    text-align: justify;
+    font-family: var(--secondary-font-family);
+    font-size: 1.3rem;
+    color: white;
+    padding-top: 10px;
+}
+@media screen and (max-width: 500px) {
+    .divProjects img {
+        width: 100%;
+        object-fit: cover;
+    }
+}
