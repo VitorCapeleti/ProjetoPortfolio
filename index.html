@@ -7,46 +7,36 @@
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
     <title>Seja Bem-Vindo</title>
 </head>
-
 <body>
-    <header class="projects-header">
-        <h1 class="projects-title">Início</h1>
-            <div class="headdiv">
-                <div class="custom-dropdown">
-                    <button class="hamburger-btn" id="menuToggle" aria-label="Menu">
-                        <span class="bar"></span>
-                        <span class="bar"></span>
-                        <span class="bar"></span>
-                    </button>
-                    <div class="dropdown-content" id="dropdownMenu">
-                        <a class="dropdown-item custom-item" href="index.html">Início</a>
-                        <a class="dropdown-item custom-item" href="../ProjetoPortfolio/pages/informations/project.html">Projetos</a>
-                        <a class="dropdown-item custom-item" href="../ProjetoPortfolio/pages/informations/about.html">Sobre mim</a>
-                    </div>
+    <header class="main-header">
+        <h1 class="header-title">Início</h1>
+        <div class="headdiv">
+            <div class="custom-dropdown">
+                <button class="hamburger-btn" id="menuToggle" aria-label="Menu">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+                <div class="dropdown-content" id="dropdownMenu">
+                    <a class="dropdown-item custom-item" href="index.html">Início</a>
+                    <a class="dropdown-item custom-item" href="pages/informations/project.html">Projetos</a>
+                    <a class="dropdown-item custom-item" href="pages/informations/about.html">Sobre mim</a>
                 </div>
             </div>
+        </div>
     </header>
-    <main class="box">
-        <ul class="list">
-            <li>
-                <div>
-                    <button>
-                        Olá eu sou o Vitor
-                    </button>
-                    <h1>
-                        Um <span style="color: #5e17eb;">Desenvolvedor Web</span>. Pronto para <span style="color: #5e17eb;">ajudar</span> sua empresa
-                    </h1>
-                    <p>
-                        Sou programador a 4 anos, sempre trabalhando muito para mostrar resultados em meus trabalhos. Tenho experiência com Front-End, Back-End e Desenvolvimento Web.
-                    </p>
-                </div>
-            </li>
-            <li class="secondLi">
-                <img src="img/icon.png" alt="">
-            </li>
-        </ul>
+
+    <main class="main-container hero-page">
+        <div class="hero-text">
+            <button class="badge-intro">Olá, eu sou o Vitor</button>
+            <h1>Um <span>Desenvolvedor Web</span>. Pronto para <span>ajudar</span> sua empresa</h1>
+            <p>Sou programador há 4 anos, sempre trabalhando muito para mostrar resultados em meus trabalhos. Tenho experiência com Front-End, Back-End e Desenvolvimento Web.</p>
+        </div>
+        <div class="hero-image">
+            <img src="img/icon.png" alt="Ícone de apresentação do Vitor">
+        </div>
     </main>
 
+    <script src="js/dropdown.js"></script>
 </body>
 </html>
-<script src="js/dropdown.js"></script>
