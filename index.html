@@ -2,41 +2,189 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Vitor Capeleti — Desenvolvedor Full-Stack &amp; Engenheiro de IA</title>
+    <meta name="description" content="Portfólio de Vitor Capeleti, desenvolvedor Full-Stack e Engenheiro de IA. Projetos em Python, PHP, JavaScript, Node.js, APIs e IA, num cenário espacial desenhado por ele.">
+    <meta name="author" content="Vitor Capeleti Gomes">
+    <meta name="theme-color" content="#0b0820">
+    <meta name="color-scheme" content="dark">
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="Vitor Capeleti">
+    <meta property="og:title" content="Vitor Capeleti — Desenvolvedor Full-Stack &amp; Engenheiro de IA">
+    <meta property="og:description" content="Desenvolvedor Full-Stack e Engenheiro de IA. Pronto para ajudar sua empresa. Veja meus projetos e minha trajetória.">
+    <meta property="og:url" content="https://vitorcapeleti.github.io/ProjetoPortfolio/">
+    <meta property="og:image" content="https://vitorcapeleti.github.io/ProjetoPortfolio/img/iconR.png">
+    <meta property="og:image:width" content="666">
+    <meta property="og:image:height" content="374">
+    <meta property="og:image:alt" content="Ilustração do Vitor programando no computador">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Vitor Capeleti — Desenvolvedor Full-Stack &amp; Engenheiro de IA">
+    <meta name="twitter:description" content="Desenvolvedor Full-Stack e Engenheiro de IA. Pronto para ajudar sua empresa. Veja meus projetos e minha trajetória.">
+    <meta name="twitter:image" content="https://vitorcapeleti.github.io/ProjetoPortfolio/img/iconR.png">
+
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
-    <title>Seja Bem-Vindo</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=VT323&display=swap">
+
+    <link rel="preload" as="image" href="img/layers/bg-gradient.webp" type="image/webp">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/views.css">
+
+    <!-- Antes de pintar: marca JS, decide o loader e instala o fallback de imagens (webp → png). -->
+    <script>
+        (function (d) {
+            var c = d.documentElement.classList;
+            c.add('js');
+            try {
+                var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                if (!reduced && !window.sessionStorage.getItem('vc-visited')) c.add('show-loader');
+            } catch (e) { /* sessionStorage bloqueado: sem loader */ }
+            d.addEventListener('error', function (e) {
+                var t = e.target;
+                if (t && t.tagName === 'IMG' && t.getAttribute('data-fallback')) {
+                    var f = t.getAttribute('data-fallback');
+                    t.removeAttribute('data-fallback');
+                    t.src = f;
+                }
+            }, true);
+        })(document);
+    </script>
+
+    <!-- GSAP (versão fixa). Se o CDN falhar, js/anim.js usa Web Animations / CSS. -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+
+    <script defer src="js/data/projects.js"></script>
+    <script defer src="js/data/experience.js"></script>
+    <script defer src="js/anim.js"></script>
+    <script defer src="js/scene.js"></script>
+    <script defer src="js/lightbox.js"></script>
+    <script defer src="js/views/home.js"></script>
+    <script defer src="js/views/projects.js"></script>
+    <script defer src="js/views/project.js"></script>
+    <script defer src="js/views/experience.js"></script>
+    <script defer src="js/views/about.js"></script>
+    <script defer src="js/router.js"></script>
+    <script defer src="js/app.js"></script>
 </head>
 <body>
+    <a class="skip-link" href="#view" data-skip>Pular para o conteúdo</a>
+
+    <!-- Cenário: recortes do fundo original, cada um no lugar exato da arte (background-size: cover). -->
+    <div id="scene" class="scene" aria-hidden="true">
+        <div class="scene-camera">
+            <div class="scene-stage">
+                <img class="scene-bg" src="img/layers/bg-gradient.webp" data-fallback="img/layers/bg-base.png" alt="" decoding="async">
+                <div class="layer layer--far" data-layer="far"></div>
+                <div class="layer layer--stars" data-layer="stars">
+                    <img src="img/layers/stars.webp" data-fallback="img/layers/stars.png" alt="" decoding="async">
+                </div>
+                <div class="layer layer--moon" data-layer="moon">
+                    <div class="life"><img src="img/layers/moon.webp" data-fallback="img/layers/moon.png" alt="" decoding="async"></div>
+                </div>
+                <div class="layer layer--saturn" data-layer="saturn">
+                    <div class="life"><img src="img/layers/saturn.webp" data-fallback="img/layers/saturn.png" alt="" decoding="async"></div>
+                </div>
+                <div class="layer layer--galaxy" data-layer="galaxy">
+                    <div class="life">
+                        <img src="img/layers/galaxy.webp" data-fallback="img/layers/galaxy.png" alt="" decoding="async">
+                        <span class="galaxy-glow"></span>
+                    </div>
+                </div>
+                <div class="layer layer--planet" data-layer="planet">
+                    <div class="life"><img src="img/layers/planet.webp" data-fallback="img/layers/planet.png" alt="" decoding="async"></div>
+                </div>
+                <div class="layer layer--rocket" data-layer="rocket">
+                    <div class="rocket-fly">
+                        <span class="rocket-flame"></span>
+                        <div class="life"><img src="img/layers/rocket.webp" data-fallback="img/layers/rocket.png" alt="" decoding="async"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="scene-fx"></div>
+        <canvas class="scene-warp"></canvas>
+    </div>
+
+    <!-- Loader: só na primeira visita da sessão (classe .show-loader no <html>). -->
+    <div class="loader" id="loader" role="status" aria-live="polite">
+        <div class="loader-pad">
+            <div class="loader-craft">
+                <span class="loader-trail"></span>
+                <img class="loader-rocket" src="img/layers/rocket.webp" data-fallback="img/layers/rocket.png" alt="">
+            </div>
+            <span class="loader-puff loader-puff--1"></span>
+            <span class="loader-puff loader-puff--2"></span>
+            <span class="loader-puff loader-puff--3"></span>
+        </div>
+        <p class="loader-text">Carregando<span class="visually-hidden"> o portfólio</span>…</p>
+    </div>
+
     <header class="main-header">
-        <h1 class="header-title">Início</h1>
-        <div class="headdiv">
+        <p class="header-title"><span class="header-title-text" id="headerTitle">Início</span></p>
+        <nav class="headdiv site-nav" aria-label="Principal">
+            <ul class="nav-inline">
+                <li><a class="nav-link" data-nav="home" href="#/">Início</a></li>
+                <li><a class="nav-link" data-nav="projects" href="#/projetos">Projetos</a></li>
+                <li><a class="nav-link" data-nav="experience" href="#/experiencia">Experiência</a></li>
+                <li><a class="nav-link" data-nav="about" href="#/sobre">Sobre mim</a></li>
+                <li class="nav-indicator" aria-hidden="true"></li>
+            </ul>
             <div class="custom-dropdown">
-                <button class="hamburger-btn" id="menuToggle" aria-label="Menu">
+                <button class="hamburger-btn" id="menuToggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="dropdownMenu">
                     <span class="bar"></span>
                     <span class="bar"></span>
                     <span class="bar"></span>
                 </button>
-                <div class="dropdown-content" id="dropdownMenu">
-                    <a class="dropdown-item custom-item" href="index.html">Início</a>
-                    <a class="dropdown-item custom-item" href="pages/informations/project.html">Projetos</a>
-                    <a class="dropdown-item custom-item" href="pages/informations/about.html">Sobre mim</a>
+                <div class="dropdown-content" id="dropdownMenu" aria-hidden="true" inert>
+                    <ul class="menu-list">
+                        <li class="menu-li" style="--i:0"><a class="menu-item" data-nav="home" href="#/">
+                            <span class="menu-ico"><img src="img/layers/rocket.webp" alt="" width="64" height="64" decoding="async"></span>
+                            <span class="menu-idx" aria-hidden="true">01</span>
+                            <span class="menu-label">Início</span>
+                        </a></li>
+                        <li class="menu-li" style="--i:1"><a class="menu-item" data-nav="projects" href="#/projetos">
+                            <span class="menu-ico"><img src="img/layers/saturn.webp" alt="" width="64" height="64" decoding="async"></span>
+                            <span class="menu-idx" aria-hidden="true">02</span>
+                            <span class="menu-label">Projetos</span>
+                        </a></li>
+                        <li class="menu-li" style="--i:2"><a class="menu-item" data-nav="experience" href="#/experiencia">
+                            <span class="menu-ico menu-ico--round"><img src="img/layers/galaxy.webp" alt="" width="64" height="64" decoding="async"></span>
+                            <span class="menu-idx" aria-hidden="true">03</span>
+                            <span class="menu-label">Experiência</span>
+                        </a></li>
+                        <li class="menu-li" style="--i:3"><a class="menu-item" data-nav="about" href="#/sobre">
+                            <span class="menu-ico"><img src="img/layers/moon.webp" alt="" width="64" height="64" decoding="async"></span>
+                            <span class="menu-idx" aria-hidden="true">04</span>
+                            <span class="menu-label">Sobre mim</span>
+                        </a></li>
+                    </ul>
+                    <div class="menu-foot">
+                        <div class="menu-socials">
+                            <a class="menu-social" href="https://github.com/VitorCapeleti" target="_blank" rel="noopener" aria-label="GitHub"><img src="img/opt/github.webp" alt="" width="24" height="24" decoding="async"></a>
+                            <a class="menu-social" href="https://www.instagram.com/vitorcapeleti/" target="_blank" rel="noopener" aria-label="Instagram"><img src="img/opt/instagram.webp" alt="" width="24" height="24" decoding="async"></a>
+                            <a class="menu-social" href="https://www.linkedin.com/in/vitor-capeleti" target="_blank" rel="noopener" aria-label="LinkedIn"><img src="img/opt/linkedin.webp" alt="" width="24" height="24" decoding="async"></a>
+                        </div>
+                        <p class="menu-sign">Vitor Capeleti · Full-Stack &amp; Engenheiro de IA</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </nav>
     </header>
 
-    <main class="main-container hero-page">
-        <div class="hero-text">
-            <button class="badge-intro">Olá, eu sou o Vitor</button>
-            <h1>Um <span>Desenvolvedor Full-Stack</span>. Pronto para <span>ajudar</span> sua empresa</h1>
-            <p>Sou programador há 6 anos, sempre demonstrando meu máximo para maximizar meus resultados em trabalhos. Desenvolvedor Full-Stack pronto para atender suas necessidades</p>
-        </div>
-        <div class="hero-image">
-            <img src="img/iconR.png" alt="Ícone de apresentação do Vitor">
-        </div>
+    <main id="view" class="view-root" tabindex="-1">
+        <noscript>
+            <section class="main-container noscript-msg">
+                <h1>Olá, eu sou o Vitor</h1>
+                <p>Este portfólio usa JavaScript para a navegação animada. Ative o JavaScript ou veja meus projetos direto no <a href="https://github.com/VitorCapeleti">GitHub</a>.</p>
+            </section>
+        </noscript>
     </main>
-
-    <script src="js/dropdown.js"></script>
 </body>
 </html>
