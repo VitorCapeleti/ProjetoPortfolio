@@ -771,6 +771,68 @@
 .ph--contain img { object-fit: contain; padding: 9%; }
 .ph--cover img { object-fit: cover; object-position: var(--pos, 50% 50%); }
 
+/* --- acender/apagar os planetas conforme o foguete passa ------------------
+   Só vale quando o JS controla o foguete (.traj.has-light); sem JS ou com
+   movimento reduzido, os planetas ficam acesos. Tudo em opacity/transform
+   (compositor), mais um filtro leve na arte. */
+.job-porthole img {
+    transition: filter .7s ease;
+}
+
+.job-porthole::after { /* véu escuro do planeta apagado */
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(20, 8, 48, .35), rgba(7, 6, 26, .78) 70%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .7s ease;
+}
+
+.job-node::before { /* halo de luz do planeta aceso */
+    content: "";
+    position: absolute;
+    inset: -45%;
+    z-index: -1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(217, 198, 255, .55) 0%, rgba(146, 90, 255, .38) 32%, rgba(94, 23, 235, 0) 68%);
+    opacity: 0;
+    transform: scale(.6);
+    pointer-events: none;
+    transition: opacity .6s ease, transform .8s cubic-bezier(.22, .61, .36, 1);
+}
+
+.job-node::after { /* anel de ignição: dispara uma vez ao acender */
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid var(--lilac);
+    box-shadow: 0 0 14px var(--purple-light);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.has-light .job:not(.is-lit) .job-porthole img { filter: grayscale(.75) brightness(.55); }
+.has-light .job:not(.is-lit) .job-porthole::after { opacity: 1; }
+.has-light .job:not(.is-lit) .job-beacon { animation-play-state: paused; opacity: 0; }
+
+.has-light .job.is-lit .job-node::before { opacity: 1; transform: scale(1); }
+.has-light .job.is-lit .job-node::after { animation: node-ignite .9s cubic-bezier(.22, .61, .36, 1) both; }
+.has-light .job.is-lit .job-porthole { animation: node-flash .9s ease-out both; }
+
+@keyframes node-ignite {
+    0%   { transform: scale(.85); opacity: 1; }
+    100% { transform: scale(1.9); opacity: 0; }
+}
+
+@keyframes node-flash {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
 /* beacon pulsante do emprego atual */
 .job-beacon {
     position: absolute;
@@ -950,7 +1012,12 @@
     line-height: 1;
 }
 
-.job-ind[open] summary::before { content: "–"; }
+.job-ind summary::before { transition: transform .45s cubic-bezier(.22, .61, .36, 1), background-color .3s ease; }
+.job-ind[open] summary::before { content: "–"; transform: rotate(180deg); }
+.job-ind.is-closing summary::before { transform: rotate(0deg); }
+
+/* Corpo animado pelo JS (altura + fade); o overflow esconde o texto durante a animação. */
+.job-ind-body { overflow: hidden; }
 .job-ind summary:hover { color: #fff; }
 .job-ind summary:focus-visible { outline: 2px solid var(--lilac); outline-offset: 2px; border-radius: 12px; }
 
@@ -1257,7 +1324,9 @@ html.lb-open { scrollbar-gutter: auto; }
 
     .job-beacon,
     .job-now-dot,
-    .traj-flame { animation: none !important; }
+    .traj-flame,
+    .job-node::after,
+    .job-porthole { animation: none !important; }
     .job-beacon { opacity: 0; }
 
     .job-card,
@@ -1293,4 +1362,16 @@ html.lb-open { scrollbar-gutter: auto; }
     .social-btn:hover,
     .social-btn:focus-visible,
     .lb-btn:hover { transform: none; }
+}
+
+/* ==========================================================================
+   Celular / aparelhos fracos (html.perf-lite): sem backdrop-filter nos cards.
+   O desfoque era refeito a cada quadro enquanto a cena e o foguete da
+   trajetória se movem por trás — fundo um pouco mais opaco no lugar.
+   ========================================================================== */
+.perf-lite .job-card,
+.perf-lite .exp-block > .stack-groups .stack-group {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(38, 7, 72, .86);
 }

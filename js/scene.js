@@ -374,9 +374,85 @@
     }
   }
 
+  /* Warp leve (celular): desenha a explosão de riscos UMA vez e anima o
+     canvas só com transform/opacity no compositor. Continua fluido mesmo
+     com o main thread ocupado montando a view nova. */
+  var liteWarpAnim = null, liteWarpDrawn = '';
+  function drawLiteBurst() {
+    var key = vw + 'x' + vh;
+    if (liteWarpDrawn === key) return;
+    wp.dpr = 1;
+    var w = Math.round(vw), h = Math.round(vh);
+    if (warpCanvas.width !== w || warpCanvas.height !== h) {
+      warpCanvas.width = w;
+      warpCanvas.height = h;
+    }
+    var ctx = warpCtx, cx = w / 2, cy = h / 2;
+    var R = Math.hypot(w, h) / 2;
+    ctx.clearRect(0, 0, w, h);
+    var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 0.55);
+    g.addColorStop(0, 'rgba(146, 90, 255, .18)');
+    g.addColorStop(1, 'rgba(146, 90, 255, 0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+    ctx.lineCap = 'round';
+    // um path por cor = poucos stroke()
+    WARP_COLORS.forEach(function (color) {
+      ctx.strokeStyle = color;
+      for (var pass = 0; pass < 2; pass++) {
+        ctx.globalAlpha = pass ? 0.95 : 0.55;
+        ctx.lineWidth = pass ? 1.6 : 1;
+        ctx.beginPath();
+        for (var i = 0; i < 6; i++) {
+          var a = Math.random() * Math.PI * 2;
+          var r0 = rand(0.12, 0.5) * R;
+          var len = rand(0.12, 0.4) * R;
+          var ca = Math.cos(a), sa = Math.sin(a);
+          ctx.moveTo(cx + ca * r0, cy + sa * r0);
+          ctx.lineTo(cx + ca * (r0 + len), cy + sa * (r0 + len));
+        }
+        ctx.stroke();
+      }
+    });
+    ctx.globalAlpha = 1;
+    liteWarpDrawn = key;
+  }
+
+  function liteWarp(opts) {
+    drawLiteBurst();
+    var dur = Math.min(opts.duration || 520, 520);
+    if (liteWarpAnim) { try { liteWarpAnim.cancel(); } catch (e) { /* ignora */ } }
+    // Fora da animação o canvas fica invisível (a imagem dos riscos continua
+    // desenhada para o próximo salto); os keyframes controlam a opacidade.
+    warpCanvas.style.opacity = '0';
+    root.classList.add('is-warping');
+    var a;
+    try {
+      a = warpCanvas.animate([
+        { transform: 'scale(.55)', opacity: 0 },
+        { transform: 'scale(1)', opacity: 1, offset: 0.35 },
+        { transform: 'scale(1.9)', opacity: 0 }
+      ], { duration: dur, easing: 'cubic-bezier(.4,0,.7,1)' });
+    } catch (e) {
+      root.classList.remove('is-warping');
+      return Promise.resolve();
+    }
+    liteWarpAnim = a;
+    return new Promise(function (res) {
+      var end = function () {
+        if (liteWarpAnim === a) { liteWarpAnim = null; root.classList.remove('is-warping'); }
+        res();
+      };
+      a.onfinish = end;
+      a.oncancel = end;
+      setTimeout(end, dur + 200);
+    });
+  }
+
   function warp(opts) {
     opts = opts || {};
     if (!alive || paused || !warpCtx || anim().reduced) return Promise.resolve();
+    if (anim().lite && typeof warpCanvas.animate === 'function') return liteWarp(opts);
     sizeWarp();
     var R = Math.hypot(vw, vh) / 2 * wp.dpr;
     var n = Math.round(clamp(vw * vh / 9000, 60, 140));
@@ -426,17 +502,21 @@
     ctx.fillRect(0, 0, W, H);
     ctx.lineCap = 'round';
     var acc = t * t;
-    for (var i = 0; i < wp.streaks.length; i++) {
-      var s = wp.streaks[i];
-      var r = s.r + s.v * wp.R * acc * 1.25;
-      var len = (12 + 300 * acc) * s.v * wp.dpr;
-      var ca = Math.cos(s.a), sa = Math.sin(s.a);
-      ctx.globalAlpha = env * s.o;
-      ctx.strokeStyle = s.c;
-      ctx.lineWidth = s.w;
+    // Agrupa os riscos por cor: um path e um stroke() por cor (em vez de um
+    // por risco), com espessura/opacidade médias do grupo.
+    ctx.globalAlpha = env * 0.85;
+    ctx.lineWidth = 1.4 * wp.dpr;
+    for (var c = 0; c < WARP_COLORS.length; c++) {
+      ctx.strokeStyle = WARP_COLORS[c];
       ctx.beginPath();
-      ctx.moveTo(cx + ca * r, cy + sa * r);
-      ctx.lineTo(cx + ca * (r + len), cy + sa * (r + len));
+      for (var i = c; i < wp.streaks.length; i += WARP_COLORS.length) {
+        var s = wp.streaks[i];
+        var r = s.r + s.v * wp.R * acc * 1.25;
+        var len = (12 + 300 * acc) * s.v * wp.dpr;
+        var ca = Math.cos(s.a), sa = Math.sin(s.a);
+        ctx.moveTo(cx + ca * r, cy + sa * r);
+        ctx.lineTo(cx + ca * (r + len), cy + sa * (r + len));
+      }
       ctx.stroke();
     }
     ctx.globalAlpha = 1;

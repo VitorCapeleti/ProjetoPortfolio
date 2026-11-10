@@ -96,24 +96,35 @@
     if (!btn || !menu) return;
     var root = document.documentElement;
     var saved = null;
-    var isOpen = function () { return menu.classList.contains('show'); };
+    // O estado vem do botão: a classe .show do painel entra 2 quadros depois.
+    var isOpen = function () { return btn.classList.contains('open'); };
     var focusables = function () {
       var list = [btn];
       Array.prototype.forEach.call(menu.querySelectorAll('a[href]'), function (a) { list.push(a); });
       return list;
     };
 
+    // Trava a rolagem só no <body>. Mexer no overflow do <html> fazia a barra
+    // de endereço do celular aparecer/sumir, redimensionando a tela no meio
+    // da animação (era o "pisca" ao abrir/fechar). O painel tem
+    // overscroll-behavior: contain, então o toque não vaza para a página.
     function lock() {
       if (saved) return;
-      saved = { html: root.style.overflow, body: document.body.style.overflow };
-      root.style.overflow = 'hidden';
+      saved = { body: document.body.style.overflow };
       document.body.style.overflow = 'hidden';
     }
     function unlock() {
       if (!saved) return;
-      root.style.overflow = saved.html;
       document.body.style.overflow = saved.body;
       saved = null;
+    }
+
+    // Depois que o painel termina de abrir, a cena por trás (coberta) pausa.
+    var coverTimer = 0;
+    function cover(on) {
+      clearTimeout(coverTimer);
+      if (on) coverTimer = setTimeout(function () { if (isOpen()) root.classList.add('menu-covered'); }, 480);
+      else root.classList.remove('menu-covered');
     }
 
     function open(focusFirst) {
@@ -124,20 +135,27 @@
       menu.style.setProperty('--my', Math.round(r.top + r.height / 2) + 'px');
       menu.removeAttribute('inert');
       menu.setAttribute('aria-hidden', 'false');
-      void menu.offsetWidth; // garante o estado inicial antes da transição
+      menu.scrollTop = 0;
       btn.classList.add('open');
-      menu.classList.add('show');
       btn.setAttribute('aria-expanded', 'true');
       btn.setAttribute('aria-label', 'Fechar menu');
       lock();
+      // Aplica o estado inicial num quadro e anima no seguinte: sem o reflow
+      // forçado (offsetWidth) que travava o primeiro quadro.
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          if (btn.classList.contains('open')) { menu.classList.add('show'); cover(true); }
+        });
+      });
       if (focusFirst) {
         var first = menu.querySelector('[aria-current="page"]') || menu.querySelector('a[href]');
-        if (first) setTimeout(function () { if (isOpen()) first.focus(); }, 30);
+        if (first) setTimeout(function () { if (isOpen()) first.focus({ preventScroll: true }); }, 80);
       }
     }
     function close(returnFocus) {
       if (!isOpen()) return;
       var hadFocus = menu.contains(document.activeElement);
+      cover(false);
       btn.classList.remove('open');
       menu.classList.remove('show');
       menu.setAttribute('inert', '');

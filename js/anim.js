@@ -65,6 +65,48 @@
 
   var HAS_WAAPI = typeof Element !== 'undefined' && typeof Element.prototype.animate === 'function';
 
+  /* Modo leve (celulares/tablets e aparelhos fracos): as animações grandes
+     rodam no compositor (WAAPI só com transform/opacity) em vez do loop de
+     JS, que trava enquanto a view nova é montada. */
+  var LITE = (function () {
+    try {
+      var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      var narrow = window.matchMedia && window.matchMedia('(max-width: 900px)').matches;
+      var weak = (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
+                 (navigator.deviceMemory && navigator.deviceMemory <= 4);
+      return !!(coarse || narrow || weak);
+    } catch (e) { return false; }
+  })();
+  if (LITE) document.documentElement.classList.add('perf-lite');
+
+  // Entrada/saída de view no compositor (não depende do main thread).
+  // keep=true (saída): mantém o estado final até a view ser removida.
+  // keep=false (entrada): ao terminar, solta a animação e limpa o inline
+  // (um transform residual quebraria position: fixed dos filhos).
+  function liteView(root, kf, dur, easing, keep) {
+    if (!HAS_WAAPI) {
+      root.style.opacity = keep ? '0' : '';
+      return Promise.resolve();
+    }
+    var a;
+    try { a = root.animate(kf, { duration: dur, easing: easing, fill: keep ? 'forwards' : 'backwards' }); } catch (e) { return Promise.resolve(); }
+    return new Promise(function (res) {
+      var settled = false;
+      var done = function () {
+        if (settled) return;
+        settled = true;
+        if (!keep) {
+          root.style.opacity = '';
+          root.style.transform = '';
+        }
+        res();
+      };
+      a.onfinish = done;
+      a.oncancel = done;
+      setTimeout(done, dur + 200);
+    });
+  }
+
   var EASES = {
     'none': 'linear',
     'linear': 'linear',
@@ -573,6 +615,7 @@
   /* ------------------------------------------------------------------- API */
   var anim = {
     get reduced() { return !!(mq && mq.matches); },
+    lite: LITE,
     get hasGsap() { return !!window.gsap; },
     onReducedChange: function (fn) {
       reducedListeners.push(fn);
@@ -608,9 +651,25 @@
       });
     },
     viewOut: function (root) {
+      if (LITE && !anim.reduced) {
+        killEl(root);
+        return liteView(root, [
+          { opacity: 1, transform: 'translate3d(0,0,0)' },
+          { opacity: 0, transform: 'translate3d(0,-10px,0)' }
+        ], 200, 'cubic-bezier(.55,0,1,.45)', true);
+      }
       return tween(root, null, { opacity: 0, y: -14, duration: 0.22, ease: 'power2.in' });
     },
     viewIn: function (root) {
+      if (LITE && !anim.reduced) {
+        killEl(root);
+        root.style.opacity = '';
+        root.style.transform = '';
+        return liteView(root, [
+          { opacity: 0, transform: 'translate3d(0,14px,0)' },
+          { opacity: 1, transform: 'translate3d(0,0,0)' }
+        ], 380, 'cubic-bezier(.215,.61,.355,1)', false);
+      }
       return tween(root, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' });
     },
     pop: function (el, o) {

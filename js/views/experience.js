@@ -3,8 +3,8 @@
    --------------------------------------------------------------------------
    Uma "trajetória" espacial: linha tracejada (órbita) com um nó por emprego,
    cada nó um recorte da arte do Vitor dentro de uma escotilha. O foguete
-   desce pela linha conforme o scroll (ScrollTrigger quando existe; senão
-   scroll + rAF; parado no reduced-motion). Abaixo: Formação, Certificados e
+   desce pela linha conforme o scroll (posição em pixels presa a 35% da tela,
+   via scroll + rAF; parado no reduced-motion). Abaixo: Formação, Certificados e
    Stack. Dados em js/data/experience.js.
    ========================================================================== */
 (function () {
@@ -87,9 +87,9 @@
       : '';
 
     var ind = list(job.indicators).length
-      ? '<details class="job-ind"><summary>Indicadores e resultados esperados</summary><ul class="job-ind-list">' +
+      ? '<details class="job-ind"><summary>Indicadores e resultados esperados</summary><div class="job-ind-body"><ul class="job-ind-list">' +
           job.indicators.map(function (x) { return '<li><strong>' + esc(x.label) + '</strong> ' + esc(x.text) + '</li>'; }).join('') +
-        '</ul></details>'
+        '</ul></div></details>'
       : '';
 
     var link = proj
@@ -176,50 +176,78 @@
       /* --- entrada da introdução */
       s.stagger(q('.exp-lead'), { y: 14, duration: 0.6, delay: 0.1 });
 
-      /* --- foguete desce pela trajetória */
-      function setProgress(p) {
-        if (!traj || !rocket || !fill) return;
-        p = clamp01(p);
-        var h = traj.offsetHeight || 1;
-        var y = p * Math.max(0, h - 56);
-        rocket.style.transform = 'translate3d(0,' + y.toFixed(1) + 'px,0)';
-        fill.style.transform = 'scaleY(' + clamp01((y + 22) / h).toFixed(4) + ')';
-        traj.setAttribute('data-progress', p.toFixed(3));
+      /* --- foguete desce pela trajetória
+         Posição em PIXELS, presa a uma linha fixa da tela (35% da altura):
+         y = quanto o topo da trajetória já passou dessa linha. Assim, abrir ou
+         fechar os indicadores (que mudam a altura da trajetória abaixo do
+         foguete) não o move. Antes era um percentual da altura total, e a
+         altura nova fazia o foguete "pular" para baixo e para cima. */
+      var ROCKET_H = 56;
+      var lastY = -1, lastH = -1;
+
+      /* Planetas acendem quando o foguete chega neles e apagam quando ele volta.
+         Os centros dos nós (relativos ao topo da trajetória) ficam em cache e
+         só são medidos de novo quando o layout muda (ResizeObserver). */
+      var nodes = qa('.job').map(function (li) { return { li: li, node: li.querySelector('.job-node'), c: 0, lit: null }; });
+      var nodesDirty = true;
+      function measureNodes(trajTop) {
+        nodes.forEach(function (n) {
+          if (!n.node) return;
+          var r = n.node.getBoundingClientRect();
+          n.c = r.top - trajTop + r.height / 2;
+        });
+        nodesDirty = false;
+      }
+      function light(y) {
+        var tip = y + ROCKET_H * 0.6; // o bico aponta para baixo
+        nodes.forEach(function (n) {
+          // pequena histerese para não piscar exatamente na borda
+          var on = n.lit ? tip >= n.c - 14 : tip >= n.c - 6;
+          if (on !== n.lit) {
+            n.lit = on;
+            n.li.classList.toggle('is-lit', on);
+          }
+        });
       }
 
-      var st = null;
+      function place(top, h) {
+        if (!rocket || !fill) return;
+        var y = Math.min(Math.max(0, window.innerHeight * 0.35 - top), Math.max(0, h - ROCKET_H));
+        y = Math.round(y * 2) / 2;
+        if (nodesDirty) measureNodes(top);
+        light(y);
+        if (y === lastY && h === lastH) return;
+        lastY = y; lastH = h;
+        rocket.style.transform = 'translate3d(0,' + y + 'px,0)';
+        fill.style.transform = 'scaleY(' + clamp01((y + 22) / (h || 1)).toFixed(4) + ')';
+        traj.setAttribute('data-progress', (h > ROCKET_H ? y / (h - ROCKET_H) : 0).toFixed(3));
+      }
+
       if (traj && !reduced) {
-        if (window.ScrollTrigger && window.gsap) {
-          try {
-            st = window.ScrollTrigger.create({
-              trigger: traj, start: 'top 35%', end: 'bottom 65%',
-              onUpdate: function (self) { setProgress(self.progress); },
-              onRefresh: function (self) { setProgress(self.progress); }
-            });
-          } catch (e) { st = null; }
-        }
-        if (st) {
-          s.add(function () { st.kill(); });
-          var refresh = function () { if (!s.dead) st.refresh(); };
-          s.on(root, 'toggle', refresh, true);           // <details> muda a altura
-          s.on(window, 'load', refresh);
-          s.timeout(refresh, 900);                        // depois da animação de entrada da view
-          if (document.fonts && document.fonts.ready) document.fonts.ready.then(refresh);
+        var raf = 0;
+        var update = function () {
+          raf = 0;
+          if (s.dead) return;
+          var r = traj.getBoundingClientRect(); // leitura única por quadro, antes das escritas
+          place(r.top, r.height);
+        };
+        var req = function () { if (!raf) raf = requestAnimationFrame(update); };
+        var relayout = function () { nodesDirty = true; req(); };
+        traj.classList.add('has-light');
+        s.add(function () { traj.classList.remove('has-light'); });
+        s.on(window, 'scroll', req, { passive: true });
+        s.on(window, 'resize', relayout, { passive: true });
+        // a altura muda (indicadores, fontes, imagens): remede os planetas e o
+        // preenchimento; o foguete fica onde está porque y não depende da altura.
+        if (typeof ResizeObserver !== 'undefined') {
+          var ro = new ResizeObserver(relayout);
+          ro.observe(traj);
+          s.add(function () { ro.disconnect(); });
         } else {
-          var raf = 0;
-          var update = function () {
-            raf = 0;
-            var r = traj.getBoundingClientRect();
-            var vh = window.innerHeight;
-            setProgress((vh * 0.35 - r.top) / Math.max(1, r.height - vh * 0.3));
-          };
-          var req = function () { if (!raf) raf = requestAnimationFrame(update); };
-          s.on(window, 'scroll', req, { passive: true });
-          s.on(window, 'resize', req, { passive: true });
-          s.on(root, 'toggle', req, true);
-          s.add(function () { cancelAnimationFrame(raf); });
-          update();
+          s.on(root, 'toggle', relayout, true);
         }
+        s.add(function () { cancelAnimationFrame(raf); });
+        update();
       }
 
       /* --- cards entram alternando os lados (uma coluna no mobile) */
@@ -245,6 +273,71 @@
         }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
         jobs.forEach(function (li) { io.observe(li); });
         s.add(function () { io.disconnect(); });
+      }
+
+      /* --- indicadores (<details>): abre e fecha com altura + fade, e os itens
+         entram um a um, em vez do "pulo" seco do <details> nativo.
+         Sem WAAPI ou com movimento reduzido, fica o comportamento nativo. */
+      if (!reduced) {
+        qa('.job-ind').forEach(function (d) {
+          var sum = d.querySelector('summary');
+          var body = d.querySelector('.job-ind-body');
+          if (!sum || !body || typeof body.animate !== 'function') return;
+          var running = [];
+          var ease = 'cubic-bezier(.22,.61,.36,1)';
+          function stop() {
+            running.forEach(function (a) { try { a.cancel(); } catch (e) { /* ignora */ } });
+            running = [];
+          }
+          function settled() {
+            // altura final mudou: avisa quem escuta "toggle" (o foguete usa ResizeObserver)
+            try { d.dispatchEvent(new Event('toggle')); } catch (e) { /* ignora */ }
+          }
+          s.on(sum, 'click', function (e) {
+            e.preventDefault();
+            var closing = d.classList.contains('is-closing');
+            var opening = !d.open || closing;
+            var from = d.open ? body.getBoundingClientRect().height : 0;
+            stop();
+            var lis = Array.prototype.slice.call(body.querySelectorAll('li'));
+            if (opening) {
+              d.classList.remove('is-closing');
+              d.open = true;
+              var to = body.scrollHeight;
+              var a = body.animate(
+                [{ height: from + 'px', opacity: closing ? 1 : 0.4 }, { height: to + 'px', opacity: 1 }],
+                { duration: 460, easing: ease }
+              );
+              running.push(a);
+              lis.forEach(function (li, i) {
+                running.push(li.animate(
+                  [{ opacity: 0, transform: 'translate3d(0,10px,0)' }, { opacity: 1, transform: 'translate3d(0,0,0)' }],
+                  { duration: 420, delay: 110 + i * 80, easing: ease, fill: 'backwards' }
+                ));
+              });
+              a.onfinish = function () { running = []; settled(); };
+            } else {
+              d.classList.add('is-closing');
+              lis.slice().reverse().forEach(function (li, i) {
+                running.push(li.animate(
+                  [{ opacity: 1, transform: 'translate3d(0,0,0)' }, { opacity: 0, transform: 'translate3d(0,-6px,0)' }],
+                  { duration: 200, delay: i * 35, easing: 'ease-in', fill: 'forwards' }
+                ));
+              });
+              var b = body.animate(
+                [{ height: from + 'px', opacity: 1 }, { height: '0px', opacity: 0 }],
+                { duration: 360, delay: 60, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' }
+              );
+              running.push(b);
+              b.onfinish = function () {
+                d.open = false;
+                d.classList.remove('is-closing');
+                stop(); // solta os estados "forwards" já com o <details> fechado
+              };
+            }
+          });
+          s.add(stop);
+        });
       }
 
       /* --- blocos de baixo */
