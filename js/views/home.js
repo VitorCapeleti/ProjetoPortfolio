@@ -1,32 +1,22 @@
 /* ==========================================================================
    Views.home — Início (#/)
-   Mesmo conteúdo do hero original. O avatar vem recortado em duas camadas
-   (img/layers/avatar + bubble) para o balão "</>" ganhar vida própria.
+   Mesmo conteúdo do hero original. O avatar é o boneco 2D animado de
+   js/avatar.js (arte do iconR.png vetorizada em peças por tools/build_avatar.py).
    ========================================================================== */
 (function () {
   'use strict';
 
   window.Views = window.Views || {};
 
-  // Posição do balão dentro do avatar (img/layers/manifest.json → bubble, em % de 666x374).
-  var BUBBLE = { left: 25.3754, top: 7.2193, width: 16.8168, height: 19.7861 };
-
   // Frases que se alternam no destaque do título (a primeira também é o texto estático).
   var PHRASES = ['Desenvolvedor Full-Stack', 'Engenheiro de IA'];
   var HOLD_MS = 2500, TYPE_MS = 55, DELETE_MS = 28;
-
-  var GLYPHS = ['{', '}', ';', '<', '/', '>', '(', ')'];
-  var GLYPH_COLORS = ['#925aff', '#b892ff', '#d9c6ff', '#7a3cff', '#c9a8ff'];
-
-  function rand(a, b) { return a + Math.random() * (b - a); }
-  function pick(list) { return list[(Math.random() * list.length) | 0]; }
 
   window.Views.home = {
     title: function () { return 'Início'; },
     docTitle: function () { return 'Vitor Capeleti — Desenvolvedor Full-Stack & Engenheiro de IA'; },
 
     render: function () {
-      var img = window.App.util.img;
       return '' +
         '<section class="main-container hero-page home" aria-labelledby="home-title">' +
           '<div class="hero-text">' +
@@ -45,18 +35,8 @@
             '</div>' +
           '</div>' +
           '<div class="hero-image">' +
-            '<div class="avatar-rig">' +
-              '<div class="avatar-breathe">' +
-                img({ src: 'img/layers/avatar.webp', fallback: 'img/layers/avatar.png', alt: 'Ícone de apresentação do Vitor' },
-                    { 'class': 'avatar-img', width: 666, height: 374 }) +
-                '<span class="monitor-glow" aria-hidden="true"></span>' +
-                '<div class="avatar-bubble" aria-hidden="true" style="left:' + BUBBLE.left + '%;top:' + BUBBLE.top + '%;width:' + BUBBLE.width + '%;height:' + BUBBLE.height + '%">' +
-                  '<div class="bubble-float"><div class="bubble-pop">' +
-                    img({ src: 'img/layers/bubble.webp', fallback: 'img/layers/bubble.png', alt: '' }, { width: 112, height: 74 }) +
-                  '</div></div>' +
-                  '<div class="bubble-glyphs"></div>' +
-                '</div>' +
-              '</div>' +
+            '<div class="avatar-rig">' + (window.App.avatar ? window.App.avatar.html() :
+              window.App.util.img({ src: 'img/opt/iconR.webp', fallback: 'img/iconR.png', alt: 'Ícone de apresentação do Vitor' }, { 'class': 'avatar-img', width: 666, height: 374 })) +
             '</div>' +
           '</div>' +
         '</section>';
@@ -70,8 +50,7 @@
       var q = function (sel) { return root.querySelector(sel); };
 
       var badge = q('.home-badge'), wave = q('.wave'), title = q('.hero-title'), desc = q('.hero-desc'), cta = q('.hero-cta');
-      var image = q('.hero-image'), rig = q('.avatar-rig'), breathe = q('.avatar-breathe'), glow = q('.monitor-glow');
-      var pop = q('.bubble-pop'), float = q('.bubble-float'), glyphs = q('.bubble-glyphs'), typeEl = q('.type-target');
+      var image = q('.hero-image'), rig = q('.avatar-rig'), typeEl = q('.type-target');
       var first = ctx.first;
 
       /* --- digitação em "Desenvolvedor Full-Stack" (esconde o resto já, sem layout shift) */
@@ -136,38 +115,10 @@
       s.stagger([badge, title, desc, cta], { y: 22, duration: 0.7, stagger: 0.12, delay: 0.05 });
       s.fromTo(image, { opacity: 0, y: 26, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 0.9, delay: 0.2, ease: 'power3.out' });
 
-      /* --- balão "</>" estoura, flutua e solta glifos de código */
-      s.fromTo(pop, { opacity: 0, scale: 0.15 }, { opacity: 1, scale: 1, duration: 0.65, delay: 0.95, ease: 'back.out(2.4)' })
-        .then(function () { if (!s.dead) startBubble(); });
-
-      function startBubble() {
-        s.loop(float, [
-          { transform: 'translateY(0) rotate(0deg)' },
-          { transform: 'translateY(-7%) rotate(-2deg)' }
-        ], { duration: 2600, easing: 'ease-in-out' });
-        if (reduced || typeof Element.prototype.animate !== 'function') return;
-        emitGlyph();
-        s.interval(emitGlyph, 1150);
-      }
-
-      function emitGlyph() {
-        if (document.hidden || !glyphs || glyphs.childElementCount > 7) return;
-        var g = document.createElement('span');
-        g.className = 'glyph';
-        g.textContent = pick(GLYPHS);
-        g.style.left = rand(18, 82).toFixed(1) + '%';
-        g.style.color = pick(GLYPH_COLORS);
-        g.style.fontSize = rand(0.8, 1.35).toFixed(2) + 'em';
-        glyphs.appendChild(g);
-        var dx = rand(-30, 30), dy = rand(45, 85), r = rand(-30, 30);
-        try {
-          var a = g.animate([
-            { transform: 'translate(0, 0) scale(.4)', opacity: 0 },
-            { transform: 'translate(' + (dx * 0.25).toFixed(1) + 'px, ' + (-dy * 0.25).toFixed(1) + 'px) scale(1)', opacity: 1, offset: 0.22 },
-            { transform: 'translate(' + dx.toFixed(1) + 'px, ' + (-dy).toFixed(1) + 'px) scale(.85) rotate(' + r.toFixed(1) + 'deg)', opacity: 0 }
-          ], { duration: rand(1700, 2500), easing: 'cubic-bezier(.22,.61,.36,1)' });
-          a.onfinish = a.oncancel = function () { g.remove(); };
-        } catch (e) { g.remove(); }
+      /* --- o boneco: digita, toma café, compila o código, ouve música */
+      if (window.App.avatar && q('.av')) {
+        var avatar = window.App.avatar.mount(q('.av'), { reduced: reduced, first: first });
+        s.add(function () { avatar.stop(); });
       }
 
       /* --- "Olá" acena: na intro e no hover do badge */
@@ -184,13 +135,6 @@
       }
       s.timeout(waveHello, first ? 1000 : 750);
       s.on(badge, 'pointerenter', waveHello);
-
-      /* --- respiração do avatar e brilho do monitor */
-      s.loop(breathe, [
-        { transform: 'scale(1, 1)' },
-        { transform: 'scale(1.006, 1.014)' }
-      ], { duration: 3600, easing: 'ease-in-out' });
-      s.loop(glow, [{ opacity: 0.22 }, { opacity: 0.75 }], { duration: 2300, easing: 'ease-in-out' });
 
       /* --- avatar inclina em direção ao ponteiro */
       var fine = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;

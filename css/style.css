@@ -1180,69 +1180,24 @@ a.badge-intro:hover {
     max-width: 666px;
 }
 
-.avatar-breathe {
-    position: relative;
-    transform-origin: 50% 100%;
-}
-
 .avatar-img {
     display: block;
     width: 100%;
     height: auto;
 }
 
-/* luz da tela (que está virada para o Vitor) batendo nele e vazando pela borda do monitor */
-.monitor-glow {
-    position: absolute;
-    left: 36%;
-    top: 16%;
-    width: 32%;
-    height: 62%;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, rgba(196, 160, 255, .6), rgba(146, 90, 255, .22) 55%, rgba(146, 90, 255, 0));
-    mix-blend-mode: screen;
-    opacity: .3;
-    pointer-events: none;
-}
-
-.avatar-bubble {
-    position: absolute;
-    font-size: clamp(14px, 2.3vw, 26px);
-    pointer-events: none;
-}
-
-.bubble-float,
-.bubble-pop {
-    width: 100%;
-    height: 100%;
-}
-
-.bubble-pop {
-    transform-origin: 18% 100%;
-}
-
-.hero-image .bubble-pop img {
+/* o boneco animado (js/avatar.js): SVG com as peças do desenho original */
+.av {
     display: block;
     width: 100%;
-    height: 100%;
+    height: auto;
+    overflow: visible; /* balões, notas e estrelas podem sair um pouco da caixa */
 }
 
-.bubble-glyphs {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 72%;
-    height: 0;
-}
-
-.glyph {
-    position: absolute;
-    bottom: 0;
-    font-family: var(--secondary-font-family);
-    line-height: 1;
-    text-shadow: 0 0 8px rgba(146, 90, 255, .65);
-    opacity: 0;
-    will-change: transform, opacity;
+.av-fx text {
+    paint-order: stroke;
+    stroke: rgba(18, 8, 46, .35);
+    stroke-width: 2px;
 }
 
 /* ==========================================================================

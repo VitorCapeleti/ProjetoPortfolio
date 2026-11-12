@@ -48,7 +48,11 @@
 - 🎯 **Parallax** que responde ao mouse e ao scroll, dando profundidade às camadas.
 - 🌀 **Transição "warp"** tipo hiperespaço entre as páginas.
 - 🚀 **Loader com foguete** enquanto o site carrega.
-- 🧑‍💻 **Avatar animado**: o título digita, apaga e alterna entre *Desenvolvedor Full-Stack* e *Engenheiro de IA*, e um balão `</>` solta símbolos de código.
+- 🧑‍💻 **Avatar animado**: o desenho original vira um boneco 2D que programa na mesa. Os dedos digitam, e símbolos de código sobem da tela. Entre trechos de digitação, ele alterna duas cenas:
+  - **café**: pega a caneca no canto da mesa e bebe;
+  - **código**: digita rápido, pensa com a mão no queixo, compila e comemora com a tela em neon ciano.
+
+  O título digita, apaga e alterna entre *Desenvolvedor Full-Stack* e *Engenheiro de IA*.
 - 🗂️ **Projetos com filtro por tag**, efeito 3D no cartão e uma imagem que "morfa" até a página do projeto.
 - 🔍 **Lightbox** para ver as capturas em tamanho maior, com navegação por teclado.
 - 🛰️ **Experiência**: uma trajetória espacial, com uma órbita tracejada, um nó por emprego (com os recortes da arte) e o foguete descendo a linha conforme o scroll. Traz período e duração calculados, indicadores, formação, certificados e stack.
@@ -97,7 +101,8 @@ A stack exibida em **Sobre mim** e em **Experiência** vem de `window.STACK`, em
 O site é uma **single-page app** em HTML, CSS e JavaScript puros. Não tem etapa de build nem dependências para instalar. A única biblioteca externa é o **GSAP 3**, carregado por CDN. Se ele não estiver disponível, as animações usam CSS e Web Animations como alternativa.
 
 - **Roteamento por hash**: `#/`, `#/projetos`, `#/projetos/<slug>`, `#/experiencia` e `#/sobre`, sem recarregar a página.
-- **Arte em camadas**: os desenhos originais são recortados em partes independentes (planetas, foguete, galáxia, avatar…) pelo script `tools/slice_art.py`, o que permite animá-los separadamente.
+- **Arte em camadas**: os desenhos originais são recortados em partes independentes (planetas, foguete, galáxia…) pelo script `tools/slice_art.py`, o que permite animá-los separadamente.
+- **Boneco vetorizado**: `tools/build_avatar.py` vetoriza o `img/iconR.png` em peças SVG e gera o `js/avatar-art.js`. As peças são cadeira, corpo, fone, cabeça, traços do rosto, mãos, manga, monitor e mesa. O `js/avatar.js` monta essas peças em camadas e anima as cenas. É um SVG leve (cerca de 60 KB com gzip), que pausa fora da tela e fica parado com `prefers-reduced-motion`.
 - **Hospedagem**: GitHub Pages.
 
 ```text
@@ -112,6 +117,8 @@ O site é uma **single-page app** em HTML, CSS e JavaScript puros. Não tem etap
 │   ├── scene.js          # Cenário, parallax e transição warp
 │   ├── anim.js           # Animações (GSAP com fallback)
 │   ├── lightbox.js       # Visualizador de capturas
+│   ├── avatar.js         # Boneco animado da página inicial
+│   ├── avatar-art.js     # Peças do boneco (geradas por tools/build_avatar.py)
 │   ├── views/            # home, projects, project, experience, about
 │   └── data/
 │       ├── projects.js   # Dados dos projetos
@@ -120,7 +127,8 @@ O site é uma **single-page app** em HTML, CSS e JavaScript puros. Não tem etap
 │   ├── layers/           # Recortes da arte (PNG e WebP)
 │   └── opt/              # Imagens otimizadas em WebP
 ├── tools/
-│   └── slice_art.py      # Gera as camadas a partir da arte original
+│   ├── slice_art.py      # Gera as camadas a partir da arte original
+│   └── build_avatar.py   # Vetoriza o avatar em peças SVG (requer: pip install pillow vtracer)
 ├── pages/                # Redirecionamentos das páginas antigas
 └── docs/preview/         # Capturas usadas neste README
 ```
